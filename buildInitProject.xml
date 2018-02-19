@@ -1,9 +1,19 @@
 <?xml version="1.0"?>
 <project name="ProjectInitializer" default="" basedir="." >
-	
-	<!-- system properties properties -->
+    <condition property="sag.ci.home" value="${env.SAG_CI_HOME}" >
+        <isset property="env.SAG_CI_HOME" />
+    </condition>
+    <property name="sag.ci.home" value="." />
+
+    <!-- system properties properties -->
 	<target name="initSAGHome" unless="SAGHome">
-		<fail message="System property 'SAGHome' should be defined!"/>
+        <condition property="SAGHome" value="${env.SAGHome}" >
+            <isset property="env.SAGHome" />
+        </condition>
+        <property name="SAGHome" value="/opt/softwareag" />
+
+        <echo>${SAGHome}</echo>
+        <fail message="System property 'SAGHome' should be defined!" unless="SAGHome"/>
 	</target>
 
 	<target name="initDeployerInstallationPath" unless="deployerInstallationPath">
@@ -44,7 +54,7 @@
 	</target>
 
 	
-	<!-- optional properties -->
+	<!-- optional build properties -->
 	<target name="initISProjectsDir" unless="isProjectsDir">
 		<property name="isProjectsDir" value=""/>
 	</target>
@@ -52,6 +62,10 @@
 	<target name="initISConfigDir" unless="isConfigDir">
 		<property name="isConfigDir" value=""/>
 	</target>
+
+    <target name="initISTestsDir" unless="isTestDir">
+        <property name="isTestDir" value=""/>
+    </target>
 	
 	<target name="initBPMProjectsDir" unless="bpmProjectsDir">
 		<property name="bpmProjectsDir" value=""/>
@@ -72,24 +86,27 @@
 	<target name="initTestPackageNamePattern" unless="testPackageNamePattern">
 		<property name="testPackageNamePattern" value=""/>
 	</target>
-	
-	
+
 	<target name="initJenkinsReportDir" unless="jenkinsReportDir">
 		<property name="jenkinsReportDir" value=""/>
 	</target>
 
-	
 	<!--Main Init targets-->
-	<target name="initSystemProperties" depends="initSAGHome,initDeployerInstallationPath,initDeployerHost,initDeployerPort,initDeployerUsername,initDeployerPassword">
+    <target name="initABEBuild" depends="initSAGHome,initABEProperties" description="init properties needed for the ABE build phase">
+    </target>
+
+    <target name="initDeployer" depends="initSAGHome,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
+    </target>
+
+    <target name="initTests" depends="initSAGHome, initISTestsDir, initTestPackageNamePattern,initJenkinsReportDir" description="init properties needed for the Test phase">
+    </target>
+
+    <target name="initABEProperties" depends="initBuildOutputDir,initISProjectsDir,initISConfigDir,initBPMProjectsDir,initMWSProjectsDir,initRulesProjectsDir,initUMProjectDir">
+    </target>
+
+    <target name="initDeployerSystemProperties" depends="initDeployerInstallationPath,initDeployerHost,initDeployerPort,initDeployerUsername,initDeployerPassword">
+    </target>
+
+	<target name="initDeployerMandatoryProperties" depends="initProjcetName,initRepositoryName,initDeployerProjectDefinition">
 	</target>
-	
-	<target name="initMandatoryProperties" depends="initProjcetName,initBuildOutputDir,initRepositoryName,initDeployerProjectDefinition">
-	</target>
-	
-	<target name="initOptionalProperties" depends="initISProjectsDir,initISConfigDir,initBPMProjectsDir,initMWSProjectsDir,initRulesProjectsDir,initUMProjectDir,initTestPackageNamePattern,initJenkinsReportDir">
-	</target>
-		
-	<target name="initProject" depends="initSystemProperties,initMandatoryProperties,initOptionalProperties" description="init properties needed for the project">
-	</target>
-	
 </project>

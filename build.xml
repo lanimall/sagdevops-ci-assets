@@ -3,23 +3,19 @@
 	<property file="${project.properties}"/>
 	<property file="System.properties"/>
         
-	<import file="buildInitProject.xml"/>
 	<import file="buildCallABE.xml"/>
 	<import file="buildDeployer.xml"/>
 	<import file="buildTest.xml"/>
-	
 
-	<taskdef classpath="lib/ant-contrib.jar" resource="net/sf/antcontrib/antlib.xml"/>
-				
-	<target name="build" depends="initProject,buildWM">		
+	<target name="build" depends="buildWM">
 		<description>Build project.</description>
 	</target>
 		
-	<target name="deploy" depends="initProject,deployWM">
+	<target name="deploy" depends="deployWM">
 		<description>Deploy project.</description>
 	</target>
 
-        <target name="test" depends="initProject,startTest">
+        <target name="test" depends="startTest">
 		<description>Run tests.</description>
 	</target>	
 	
