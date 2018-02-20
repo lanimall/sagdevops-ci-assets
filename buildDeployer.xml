@@ -95,8 +95,20 @@
 			</else>
 		</if>		
 	</target>
-	
-	<target name="triggerDeploy">
+
+    <target name="waitForDeployerUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${deployerHost}" port="${deployerPort}"/>
+        </waitfor>
+    </target>
+
+    <target name="waitForDeployerTargetUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${testISHost}" port="${testISPort}"/>
+        </waitfor>
+    </target>
+
+	<target name="triggerDeploy" depends="waitForDeployerUp,waitForDeployerTargetUp">
 		<exec executable="${deployerInstallationPath}/${deployerExecutable}" dir="${deployerInstallationPath}" failonerror="true" resultproperty="appState">
 			<arg value="--deploy"/>
 			<arg line="-project ${projectName}"/>
