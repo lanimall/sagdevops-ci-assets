@@ -10,11 +10,11 @@
             <fileset dir="${SAGHome}/common/lib" includes="**/gf.javax.mail.jar" />
             <fileset dir="${SAGHome}/common/lib" includes="wm-isclient.jar" />
             <fileset dir="${SAGHome}/IntegrationServer/lib" includes="wm-isserver.jar" />
-            <fileset dir="./lib" includes="httpunit.jar" />
-            <fileset dir="./lib" includes="junit*.jar" />
-            <fileset dir="./lib" includes="xmlunit*.jar" />
-            <fileset dir="./lib" includes="serviceInterceptor.jar" />
-            <fileset dir="./lib" includes="serviceMockClient.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="httpunit.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="junit*.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="xmlunit*.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="serviceInterceptor.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="serviceMockClient.jar" />
         </path>
     </target>
 
