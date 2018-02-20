@@ -1,9 +1,21 @@
 <?xml version="1.0"?>
 <project name="ProjectInitializer" default="" basedir="." >
-    <condition property="sag.ci.home" value="${env.SAG_CI_HOME}" >
-        <isset property="env.SAG_CI_HOME" />
-    </condition>
-    <property name="sag.ci.home" value="." />
+
+    <target name="globalInit" depends="initSAGHome">
+        <condition property="sag.ci.home" value="${env.SAG_CI_HOME}" >
+            <isset property="env.SAG_CI_HOME" />
+        </condition>
+        <property name="sag.ci.home" value="." />
+
+        <property file="${sag.ci.home}/System.properties"/>
+
+
+        <path description="" id="cc.ant.classpath">
+            <fileset dir="${sag.ci.home}" includes="lib/*.jar" />
+        </path>
+
+        <taskdef classpathref="cc.ant.classpath" resource="net/sf/antcontrib/antlib.xml"/>
+    </target>
 
     <!-- system properties properties -->
 	<target name="initSAGHome" unless="SAGHome">
@@ -38,7 +50,11 @@
 			
 	<!-- mandatory properties -->
 	<target name="initProjcetName" unless="projectName">
-		<fail message="Property 'projectName' should be defined!"/>
+        <condition property="projectName" value="${env.JOB_NAME}" >
+            <isset property="env.JOB_NAME" />
+        </condition>
+
+        <fail message="Property 'projectName' should be defined!"/>
 	</target>
 		
 	<target name="initBuildOutputDir" unless="buildOutputDir">
@@ -49,11 +65,13 @@
 		<fail message="Property 'repositoryName' should be defined!"/>
 	</target>
 	
-	<target name="initDeployerProjectDefinition" unless="deployerProjectDefinition">
-		<fail message="Property 'deployerProjectDefinition' should be defined!"/>
+	<target name="initDeployerProjectDefinition" unless="deployerProjectDefinition" depends="initProjcetName">
+        <!-- Target filename of the Deployer Project Specification for this run -->
+        <property name="deployerProjectDefinition" value="${workspace.dir}/ProjectAutomator/${projectName}DeploymentSpec.xml"/>
+
+        <fail message="Property 'deployerProjectDefinition' should be defined!" unless="deployerProjectDefinition"/>
 	</target>
 
-	
 	<!-- optional build properties -->
 	<target name="initISProjectsDir" unless="isProjectsDir">
 		<property name="isProjectsDir" value=""/>
@@ -92,13 +110,16 @@
 	</target>
 
 	<!--Main Init targets-->
-    <target name="initABEBuild" depends="initSAGHome,initABEProperties" description="init properties needed for the ABE build phase">
+    <target name="baseInitABEBuild" depends="globalInit,initSAGHome,initABEProperties" description="init properties needed for the ABE build phase">
+        <echo>Done initABEBuild!!</echo>
     </target>
 
-    <target name="initDeployer" depends="initSAGHome,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
+    <target name="baseInitDeployer" depends="globalInit,initSAGHome,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
+        <echo>Done initDeployer!!</echo>
     </target>
 
-    <target name="initTests" depends="initSAGHome, initISTestsDir, initTestPackageNamePattern,initJenkinsReportDir" description="init properties needed for the Test phase">
+    <target name="baseInitTests" depends="globalInit,initSAGHome, initISTestsDir, initTestPackageNamePattern,initJenkinsReportDir" description="init properties needed for the Test phase">
+        <echo>Done initTests!!</echo>
     </target>
 
     <target name="initABEProperties" depends="initBuildOutputDir,initISProjectsDir,initISConfigDir,initBPMProjectsDir,initMWSProjectsDir,initRulesProjectsDir,initUMProjectDir">

@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <project name="Build and Deploy Solution" default="buildDeployTest" basedir="." >
-	<property file="${project.properties}"/>
-	<property file="System.properties"/>
-        
 	<import file="buildCallABE.xml"/>
 	<import file="buildDeployer.xml"/>
 	<import file="buildTest.xml"/>
@@ -15,7 +12,7 @@
 		<description>Deploy project.</description>
 	</target>
 
-        <target name="test" depends="startTest">
+    <target name="test" depends="startTest">
 		<description>Run tests.</description>
 	</target>	
 	

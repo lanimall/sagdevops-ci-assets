@@ -2,19 +2,17 @@
 <project name="Deploy" default="deployWM" basedir=".">
     <import file="buildInitProject.xml"/>
 
-    <target name="init" depends="initDeployer">
+    <target name="initDeployer" depends="baseInitDeployer">
+        <echo>Entering init for deployer!!</echo>
         <!-- Global Variables that concern the code and should be changed only if the code is changed -->
         <!-- Template for the Deployer Project Specification -->
         <property name="deployerProjectDefinitionTemplate" value="${sag.ci.home}/resources/ProjectSpecificationTemplate.xml"/>
-
-        <!-- Target filename of the Deployer Project Specification for this run -->
-        <property name="deployerProjectDefinition" value="${workspace.dir}/ProjectAutomator/${projectName}DeploymentSpec.xml"/>
 
         <!-- XSLT for the Deployer Project Specification - adding Repository and Project Sections -->
         <property name="initialXSLT" value="${sag.ci.home}/resources/setUpInitial.xslt"/>
     </target>
 
-	<target name="deployWM" description="main deploy task" depends="init, startDeployment, initPAandDeployerWindows, initPAandDeployerUnix, createDeployerSpec,execProjectAutomator,triggerDeploy">
+	<target name="deployWM" description="main deploy task" depends="initDeployer, startDeployment, initPAandDeployerWindows, initPAandDeployerUnix, createDeployerSpec,execProjectAutomator,triggerDeploy">
 	</target>
 
 	<target name="startDeployment">		
@@ -83,7 +81,7 @@
 		<pathconvert refid="pathProjectdefinition" property="pathProjectdefinitionFile"/>
 		
 				
-		<exec dir="${deployerInstallationPath}"  executable="${deployerInstallationPath}/${deployerAutomatorExecutable}" failonerror="true" resultproperty="appState">		
+		<exec dir="${deployerInstallationPath}" executable="${deployerInstallationPath}/${deployerAutomatorExecutable}" failonerror="true" resultproperty="appState">
 			<arg value="${pathProjectdefinitionFile}" />
 		</exec>
 		

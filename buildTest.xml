@@ -2,7 +2,7 @@
 <project name="test" default="startTest" basedir=".">
     <import file="buildInitProject.xml"/>
 
-    <target name="init" depends="initTests">
+    <target name="initTests" depends="baseInitTests">
         <property name="testSuitePackagesPath" value="${isTestDir}"/>
 
         <path id="junitClasspath">
@@ -18,7 +18,7 @@
         </path>
     </target>
 
-	<target name="startTest" depends="init, jenkinsCheck">
+	<target name="startTest" depends="initTests, jenkinsCheck">
 		<var name="failedTestList" value=""/>
 		
         <!-- interate over the test project and triiger all xml tests in the setup folder -->
