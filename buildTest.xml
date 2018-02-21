@@ -46,9 +46,6 @@
 			</sequential>
 		</for>
 
-
-
-		
 		<if>
 			<not>
 				<equals arg1="${failedTestList}" arg2="" trim="true" />
@@ -62,19 +59,24 @@
 		</if>
 	</target>
 
-	<target name="junitInitTest">
+	<target name="junitInitTest" depends="initTests">
 		<echo message="Init JUnit tests for package ${testPackageName}" />
 		
-		<property name="testPackageReportsDir" value="${testPackageName}/resources/reports" />
+		<property name="testPackageReportsDir" value="${workspace.dir}/target/test_reports/${testPackageName}" />
 	</target>
 	
 	<target name="junitCleanUp">
 		<delete dir="${testPackageReportsDir}" />								
 	</target>
-	
+
+    <target name="waitForTestTargetUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${testISHost}" port="${testISPort}"/>
+        </waitfor>
+    </target>
 
 	<!--execute only if the XML Test directory exists in the test package -->
-	<target name="junitTestAndReportXML" depends="junitInitTest,junitCleanUp">
+	<target name="junitTestAndReportXML" depends="junitInitTest,junitCleanUp,waitForTestTargetUp">
 		<echo message="Starting JUnit tests for package '${testPackageName}'"/>
 		
 		<mkdir dir="${testPackageReportsDir}" />
@@ -125,10 +127,6 @@
 
 		<fail if="test:failure">Unit test failure</fail>
 	</target>
-
-
-
-
 
 	<!-- if jenkins report dir is set publicate results there-->
 	<target name="junitCopyResultsToReportsDir" depends="jenkinsCheck" if="isReportingToJenkins">

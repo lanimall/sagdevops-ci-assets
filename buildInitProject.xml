@@ -67,7 +67,7 @@
 	
 	<target name="initDeployerProjectDefinition" unless="deployerProjectDefinition" depends="initProjcetName">
         <!-- Target filename of the Deployer Project Specification for this run -->
-        <property name="deployerProjectDefinition" value="${workspace.dir}/ProjectAutomator/${projectName}DeploymentSpec.xml"/>
+        <property name="deployerProjectDefinition" value="${workspace.dir}/target/ProjectAutomator/${projectName}DeploymentSpec.xml"/>
 
         <fail message="Property 'deployerProjectDefinition' should be defined!" unless="deployerProjectDefinition"/>
 	</target>
