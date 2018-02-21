@@ -1,25 +1,28 @@
 <?xml version="1.0"?>
 <project name="test" default="startTest" basedir=".">
+    <import file="buildInitProject.xml"/>
 
-	<property name="testSuitePackagesPath" value="${isTestDir}"/>
+    <target name="initTests" depends="baseInitTests">
+        <property name="testSuitePackagesPath" value="${isTestDir}"/>
 
-	<path id="junitClasspath">
-		<fileset dir="${SAGHome}/common/lib/ext" includes="enttoolkit.jar" />
-		<fileset dir="${SAGHome}/common/lib" includes="**/gf.javax.mail.jar" />
-		<fileset dir="${SAGHome}/common/lib" includes="wm-isclient.jar" />
-		<fileset dir="${SAGHome}/IntegrationServer/lib" includes="wm-isserver.jar" />
-		<fileset dir="./lib" includes="httpunit.jar" />
-		<fileset dir="./lib" includes="junit*.jar" />
-		<fileset dir="./lib" includes="xmlunit*.jar" />
-		<fileset dir="./lib" includes="serviceInterceptor.jar" />
-		<fileset dir="./lib" includes="serviceMockClient.jar" />
-	</path>
-	
-	<target name="startTest" depends="jenkinsCheck">		
+        <path id="junitClasspath">
+            <fileset dir="${SAGHome}/common/lib/ext" includes="enttoolkit.jar" />
+            <fileset dir="${SAGHome}/common/lib" includes="**/gf.javax.mail.jar" />
+            <fileset dir="${SAGHome}/common/lib" includes="wm-isclient.jar" />
+            <fileset dir="${SAGHome}/IntegrationServer/lib" includes="wm-isserver.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="httpunit.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="junit*.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="xmlunit*.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="serviceInterceptor.jar" />
+            <fileset dir="${sag.ci.home}/lib" includes="serviceMockClient.jar" />
+        </path>
+    </target>
+
+	<target name="startTest" depends="initTests, jenkinsCheck">
 		<var name="failedTestList" value=""/>
 		
-                <!-- interate over the test project and triiger all xml tests in the setup folder -->
-                <for param="testProject" keepgoing="true" trim="true">
+        <!-- interate over the test project and triiger all xml tests in the setup folder -->
+        <for param="testProject" keepgoing="true" trim="true">
 			<path>
 				<dirset dir="${testSuitePackagesPath}" includes="*" excludes=".*,replicate" />
 			</path>
@@ -43,9 +46,6 @@
 			</sequential>
 		</for>
 
-
-
-		
 		<if>
 			<not>
 				<equals arg1="${failedTestList}" arg2="" trim="true" />
@@ -59,19 +59,24 @@
 		</if>
 	</target>
 
-	<target name="junitInitTest">
+	<target name="junitInitTest" depends="initTests">
 		<echo message="Init JUnit tests for package ${testPackageName}" />
 		
-		<property name="testPackageReportsDir" value="${testPackageName}/resources/reports" />
+		<property name="testPackageReportsDir" value="${workspace.dir}/target/test_reports/${testPackageName}" />
 	</target>
 	
 	<target name="junitCleanUp">
 		<delete dir="${testPackageReportsDir}" />								
 	</target>
-	
+
+    <target name="waitForTestTargetUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${testISHost}" port="${testISPort}"/>
+        </waitfor>
+    </target>
 
 	<!--execute only if the XML Test directory exists in the test package -->
-	<target name="junitTestAndReportXML" depends="junitInitTest,junitCleanUp">
+	<target name="junitTestAndReportXML" depends="junitInitTest,junitCleanUp,waitForTestTargetUp">
 		<echo message="Starting JUnit tests for package '${testPackageName}'"/>
 		
 		<mkdir dir="${testPackageReportsDir}" />
@@ -122,10 +127,6 @@
 
 		<fail if="test:failure">Unit test failure</fail>
 	</target>
-
-
-
-
 
 	<!-- if jenkins report dir is set publicate results there-->
 	<target name="junitCopyResultsToReportsDir" depends="jenkinsCheck" if="isReportingToJenkins">

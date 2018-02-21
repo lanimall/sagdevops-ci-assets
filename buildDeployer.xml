@@ -1,17 +1,18 @@
 <?xml version="1.0"?>
 <project name="Deploy" default="deployWM" basedir=".">
-     
-	<!-- Global Variables that concern the code and should be changed only if the code is changed -->
-	<!-- Template for the Deployer Project Specification -->
-	<property name="deployerProjectDefinitionTemplate" value="resources/ProjectSpecificationTemplate.xml"/>
-	
-	<!-- Target filename of the Deployer Project Specification for this run -->
-	<property name="deployerProjectDefinition" value="${workspace.dir}/ProjectAutomator/${projectName}DeploymentSpec.xml"/>
-	
-	<!-- XSLT for the Deployer Project Specification - adding Repository and Project Sections -->
-	<property name="initialXSLT" value="resources/setUpInitial.xslt"/>
-	
-	<target name="deployWM" description="main deploy task" depends="startDeployment, initPAandDeployerWindows, initPAandDeployerUnix, createDeployerSpec,execProjectAutomator,triggerDeploy">
+    <import file="buildInitProject.xml"/>
+
+    <target name="initDeployer" depends="baseInitDeployer">
+        <echo>Entering init for deployer!!</echo>
+        <!-- Global Variables that concern the code and should be changed only if the code is changed -->
+        <!-- Template for the Deployer Project Specification -->
+        <property name="deployerProjectDefinitionTemplate" value="${sag.ci.home}/resources/ProjectSpecificationTemplate.xml"/>
+
+        <!-- XSLT for the Deployer Project Specification - adding Repository and Project Sections -->
+        <property name="initialXSLT" value="${sag.ci.home}/resources/setUpInitial.xslt"/>
+    </target>
+
+	<target name="deployWM" description="main deploy task" depends="initDeployer, startDeployment, initPAandDeployerWindows, initPAandDeployerUnix, createDeployerSpec,execProjectAutomator,triggerDeploy">
 	</target>
 
 	<target name="startDeployment">		
@@ -80,7 +81,7 @@
 		<pathconvert refid="pathProjectdefinition" property="pathProjectdefinitionFile"/>
 		
 				
-		<exec dir="${deployerInstallationPath}"  executable="${deployerInstallationPath}/${deployerAutomatorExecutable}" failonerror="true" resultproperty="appState">		
+		<exec dir="${deployerInstallationPath}" executable="${deployerInstallationPath}/${deployerAutomatorExecutable}" failonerror="true" resultproperty="appState">
 			<arg value="${pathProjectdefinitionFile}" />
 		</exec>
 		
@@ -94,8 +95,20 @@
 			</else>
 		</if>		
 	</target>
-	
-	<target name="triggerDeploy">
+
+    <target name="waitForDeployerUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${deployerHost}" port="${deployerPort}"/>
+        </waitfor>
+    </target>
+
+    <target name="waitForDeployerTargetUp">
+        <waitfor maxwait="120" maxwaitunit="second" checkevery="1" checkeveryunit="second">
+            <socket server="${testISHost}" port="${testISPort}"/>
+        </waitfor>
+    </target>
+
+	<target name="triggerDeploy" depends="waitForDeployerUp,waitForDeployerTargetUp">
 		<exec executable="${deployerInstallationPath}/${deployerExecutable}" dir="${deployerInstallationPath}" failonerror="true" resultproperty="appState">
 			<arg value="--deploy"/>
 			<arg line="-project ${projectName}"/>
