@@ -72,8 +72,3 @@ Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=
 
 
 
-
-
-
-
-
