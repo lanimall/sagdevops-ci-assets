@@ -10,12 +10,28 @@ pipeline {
     }
 
     stages {
-        stage('trymaven') {
+        stage('Tests') {
             agent {
-                docker { image 'maven:3-alpine' }
+                docker { image 'inikolaev/alpine-jdk-ant' }
             }
+
             steps {
-                sh 'mvn --version'
+                script {
+                    sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
+                }
+            }
+        }
+
+        stage('Save2Docker') {
+            steps {
+                echo 'Saving Docker image'
+                script {
+                    docker.withRegistry('https://${REGISTRY}') {
+                        def customImage = docker.build("${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_VERSION}")
+                        customImage.push()
+                        customImage.push("latest")
+                    }
+                }
             }
         }
     }

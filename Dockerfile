@@ -1,4 +1,4 @@
-FROM frekele/ant:1.9.10-jdk8
+FROM inikolaev/alpine-jdk-ant
 
 MAINTAINER fabien.sanglier@softwareaggov.com
 
