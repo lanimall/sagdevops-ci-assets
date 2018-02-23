@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-<project name="ProjectInitializer" default="" basedir="." >
+<project name="ProjectInitializer" default="globalInit" basedir="."
+    xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
 
-    <target name="globalInit" depends="initSAGHome">
-        <condition property="sag.ci.home" value="${env.SAG_CI_HOME}" >
-            <isset property="env.SAG_CI_HOME" />
-        </condition>
-        <property name="sag.ci.home" value="." />
+    <!-- loads all env variables -->
+    <property environment="env"/>
 
-        <property file="${sag.ci.home}/System.properties"/>
+    <target name="globalInit" depends="globalInitSAGCIHOME,globalInitSAGHome,globalInitProjectName,globalInitAntContrib">
+        <property file="${sag.ci.home}/system.properties"/>
+    </target>
 
-
+    <target name="globalInitAntContrib" depends="globalInitSAGCIHOME">
         <path description="" id="cc.ant.classpath">
             <fileset dir="${sag.ci.home}" includes="lib/*.jar" />
         </path>
@@ -17,18 +17,51 @@
         <taskdef classpathref="cc.ant.classpath" resource="net/sf/antcontrib/antlib.xml"/>
     </target>
 
-    <!-- system properties properties -->
-	<target name="initSAGHome" unless="SAGHome">
-        <condition property="SAGHome" value="${env.SAGHome}" >
-            <isset property="env.SAGHome" />
-        </condition>
-        <property name="SAGHome" value="/opt/softwareag" />
+    <!-- Resolution order is:
+    1) check the environment variables if set and non empty eg. export SAG_CI_HOME=test
+    2) check the passed in system property: eg. ant -DSAG_CI_HOME=test
+    3) otherwise, look into a property possibly set in build.xml
+    -->
+    <target name="globalInitSAGCIHOME">
+        <set-property-if-nonempty name="sag.ci.home" if-property-isset-nonempty="env.SAG_CI_HOME" />
+        <set-property-if-nonempty name="sag.ci.home" if-property-isset-nonempty="SAG_CI_HOME" />
 
-        <echo>${SAGHome}</echo>
+        <fail message="System property 'sag.ci.home' should be defined!" unless="sag.ci.home"/>
+    </target>
+
+    <target name="globalInitProjectName">
+        <set-property-if-nonempty name="projectName" if-property-isset-nonempty="env.PROJECT_NAME" />
+        <set-property-if-nonempty name="projectName" if-property-isset-nonempty="PROJECT_NAME" />
+
+        <fail message="System property 'projectName' should be defined!" unless="projectName"/>
+    </target>
+
+    <!-- system properties properties -->
+	<target name="globalInitSAGHome">
+        <set-property-if-nonempty name="SAGHome" if-property-isset-nonempty="env.SAG_HOME" />
+        <set-property-if-nonempty name="SAGHome" if-property-isset-nonempty="SAG_HOME" />
+
         <fail message="System property 'SAGHome' should be defined!" unless="SAGHome"/>
 	</target>
 
-	<target name="initDeployerInstallationPath" unless="deployerInstallationPath">
+    <macrodef name="set-property-if-nonempty">
+        <attribute name="name" />
+        <attribute name="if-property-isset-nonempty" />
+        <attribute name="value" default="${@{if-property-isset-nonempty}}" />
+
+        <sequential>
+            <condition property="@{name}" value="@{value}">
+                <and>
+                    <isset property="@{if-property-isset-nonempty}" />
+                    <not>
+                        <equals arg1="${@{if-property-isset-nonempty}}" arg2="" trim="true" />
+                    </not>
+                </and>
+            </condition>
+        </sequential>
+    </macrodef>
+
+    <target name="initDeployerInstallationPath" unless="deployerInstallationPath">
 		<fail message="System property 'deployerInstallationPath' should be defined!"/>
 	</target>
 
@@ -50,10 +83,6 @@
 			
 	<!-- mandatory properties -->
 	<target name="initProjcetName" unless="projectName">
-        <condition property="projectName" value="${env.JOB_NAME}" >
-            <isset property="env.JOB_NAME" />
-        </condition>
-
         <fail message="Property 'projectName' should be defined!"/>
 	</target>
 		
@@ -110,15 +139,15 @@
 	</target>
 
 	<!--Main Init targets-->
-    <target name="baseInitABEBuild" depends="globalInit,initSAGHome,initABEProperties" description="init properties needed for the ABE build phase">
+    <target name="baseInitABEBuild" depends="globalInit,initABEProperties" description="init properties needed for the ABE build phase">
         <echo>Done initABEBuild!!</echo>
     </target>
 
-    <target name="baseInitDeployer" depends="globalInit,initSAGHome,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
+    <target name="baseInitDeployer" depends="globalInit,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
         <echo>Done initDeployer!!</echo>
     </target>
 
-    <target name="baseInitTests" depends="globalInit,initSAGHome, initISTestsDir, initTestPackageNamePattern,initJenkinsReportDir" description="init properties needed for the Test phase">
+    <target name="baseInitTests" depends="globalInit, initISTestsDir, initTestPackageNamePattern,initJenkinsReportDir" description="init properties needed for the Test phase">
         <echo>Done initTests!!</echo>
     </target>
 
