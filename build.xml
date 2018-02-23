@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<project name="Build and Deploy Solution" default="buildDeployTest" basedir="." >
+<project name="sagdevops-ci-assets" default="buildDeployTest"
+         xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless"
+         basedir=".">
+
 	<import file="buildCallABE.xml"/>
 	<import file="buildDeployer.xml"/>
 	<import file="buildTest.xml"/>
@@ -19,4 +22,47 @@
 	<target name="buildDeployTest" depends="build, deploy, test">
 		<description>Build and deploy the project.</description>
 	</target>
+
+    <!-- scripts will use these if the env variables are not set -->
+    <target name="initDefaultProperties">
+        <property name="SAG_CI_HOME" value="."/>
+        <property name="PROJECT_NAME" value="${ant.project.name}" />
+        <property name="SAG_HOME" value="/opt/softwareag" />
+    </target>
+
+    <target name="unitTest" depends="initDefaultProperties, globalInit">
+        <description>Test that the project is valid</description>
+        <property file="tests.properties"/>
+
+        <echo>${projectName}</echo>
+
+        <antcall target="initABEBuild"></antcall>
+        <antcall target="initDeployer"></antcall>
+        <antcall target="initTests"></antcall>
+
+        <!-- remap the VCS structure defined in project.properties to have absolute paths -->
+        <property name="isProjectsDir" location="${isPackages}"/>
+        <property name="isTestDir" location="${isTests}"/>
+        <property name="bpmProjectsDir" location="${bpmProjects}"/>
+        <property name="mwsProjectsDir" location="${mwsProjects}"/>
+        <property name="rulesProjectsDir" location="${rulesProjects}"/>
+        <property name="umProjectsDir" location="${umExport}"/>
+        <property name="jenkinsReportDir" value="${jenkinsReportDir}"/>
+
+        <echo>
+            ${buildOutputDir} == ./target/${projectName}/build  ??
+        </echo>
+        <if>
+            <and>
+                <equals arg1="${sag.ci.home}" arg2="." trim="true" />
+                <equals arg1="${buildOutputDir}" arg2="./target/${projectName}/build" trim="true" />
+            </and>
+            <then>
+                <echo message="All JUnit Tests passed."/>
+            </then>
+            <else>
+                <fail message="${sag.ci.home} not expected value" />
+            </else>
+        </if>
+    </target>
 </project>
