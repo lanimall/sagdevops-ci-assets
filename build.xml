@@ -33,7 +33,7 @@
     <target name="unitTests" depends="initDefaultProperties, globalInit">
         <description>Test that the project is valid</description>
         <echo>Loading tests.properties at ${sag.ci.home}/tests.properties</echo>
-        <property file="${sag.ci.home}/tests.properties"/>
+        <property file="${sag.ci.home}/unittests.properties"/>
 
         <echo>Before initABEBuild</echo>
         <echoproperties/>

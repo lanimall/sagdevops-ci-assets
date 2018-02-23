@@ -6,8 +6,6 @@
     <property environment="env"/>
 
     <target name="globalInit" depends="globalInitSAGCIHOME,globalInitSAGHome,globalInitProjectName,globalInitAntContrib">
-        <echo>Loading system.properties at ${sag.ci.home}/system.properties</echo>
-        <property file="${sag.ci.home}/system.properties"/>
     </target>
 
     <target name="globalInitAntContrib" depends="globalInitSAGCIHOME">
@@ -144,7 +142,7 @@
         <echo>Done initABEBuild!!</echo>
     </target>
 
-    <target name="baseInitDeployer" depends="globalInit,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
+    <target name="baseInitDeployer" depends="globalInit,initDeployerProperties,initDeployerSystemProperties,initDeployerMandatoryProperties" description="init properties needed for the Deployer phase">
         <echo>Done initDeployer!!</echo>
     </target>
 
@@ -153,6 +151,11 @@
     </target>
 
     <target name="initABEProperties" depends="initBuildOutputDir,initISProjectsDir,initISConfigDir,initBPMProjectsDir,initMWSProjectsDir,initRulesProjectsDir,initUMProjectDir">
+    </target>
+
+    <target name="initDeployerProperties">
+        <echo>Loading deployer.properties at ${sag.ci.home}/deployer.properties</echo>
+        <property file="${sag.ci.home}/deployer.properties"/>
     </target>
 
     <target name="initDeployerSystemProperties" depends="initDeployerInstallationPath,initDeployerHost,initDeployerPort,initDeployerUsername,initDeployerPassword">
