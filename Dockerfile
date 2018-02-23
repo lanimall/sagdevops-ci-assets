@@ -1,4 +1,4 @@
-FROM centos:7
+FROM frekele/ant:1.9.10-jdk8
 
 MAINTAINER fabien.sanglier@softwareaggov.com
 
