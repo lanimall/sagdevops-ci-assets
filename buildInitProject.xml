@@ -6,6 +6,7 @@
     <property environment="env"/>
 
     <target name="globalInit" depends="globalInitSAGCIHOME,globalInitSAGHome,globalInitProjectName,globalInitAntContrib">
+        <echo>Loading system.properties at ${sag.ci.home}/system.properties</echo>
         <property file="${sag.ci.home}/system.properties"/>
     </target>
 

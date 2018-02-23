@@ -32,14 +32,23 @@
 
     <target name="unitTests" depends="initDefaultProperties, globalInit">
         <description>Test that the project is valid</description>
-        <property file="tests.properties"/>
+        <echo>Loading tests.properties at ${sag.ci.home}/tests.properties</echo>
+        <property file="${sag.ci.home}/tests.properties"/>
 
-        <echo>${projectName}</echo>
-
+        <echo>Before initABEBuild</echo>
+        <echoproperties/>
         <antcall target="initABEBuild"></antcall>
+
+        <echo>Before initDeployer</echo>
+        <echoproperties/>
         <antcall target="initDeployer"></antcall>
+
+        <echo>Before initTests</echo>
+        <echoproperties/>
         <antcall target="initTests"></antcall>
 
+        <echo>Final</echo>
+        <echoproperties/>
         <!-- remap the VCS structure defined in project.properties to have absolute paths -->
         <property name="isProjectsDir" location="${isPackages}"/>
         <property name="isTestDir" location="${isTests}"/>
