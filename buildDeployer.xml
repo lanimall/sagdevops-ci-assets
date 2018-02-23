@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project name="Deploy" default="deployWM" basedir=".">
+<project name="Deploy" default="deployWM" basedir="."
+    xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
+
     <import file="buildInitProject.xml"/>
 
     <target name="initDeployer" depends="baseInitDeployer">

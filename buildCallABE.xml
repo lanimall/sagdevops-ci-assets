@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project name="Build" default="buildWM" basedir=".">
+<project name="Build" default="buildWM" basedir="."
+         xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless">
     <import file="buildInitProject.xml"/>
 
     <target name="initABEBuild" depends="baseInitABEBuild">
