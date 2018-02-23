@@ -1,7 +1,5 @@
 pipeline {
-    agent {
-        label 'docker'
-    }
+    agent none
 
     environment {
         PROJECT_NAME = "${env.JOB_NAME}-${env.BUILD_ID}"
@@ -12,15 +10,14 @@ pipeline {
     }
 
     stages {
-        def customImage;
         stage('Tests') {
+            agent {
+                dockerfile { dockerfile true }
+            }
+
             steps {
                 script {
-                    customImage = docker.build("${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_VERSION}")
-
-                    customImage.inside(){
-                        sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
-                    }
+                    sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
                 }
             }
         }
@@ -30,6 +27,7 @@ pipeline {
                 echo 'Saving Docker image'
                 script {
                     docker.withRegistry('https://${REGISTRY}') {
+                        def customImage = docker.build("${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_VERSION}")
                         customImage.push()
                         customImage.push("latest")
                     }
