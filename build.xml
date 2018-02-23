@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="sagdevops-ci-assets" default="buildDeployTest"
+<project name="sagdevops-ci-assets" default="unitTests"
          xmlns="antlib:org.apache.tools.ant" xmlns:if="ant:if" xmlns:unless="ant:unless"
          basedir=".">
 
@@ -30,7 +30,7 @@
         <property name="SAG_HOME" value="/opt/softwareag" />
     </target>
 
-    <target name="unitTest" depends="initDefaultProperties, globalInit">
+    <target name="unitTests" depends="initDefaultProperties, globalInit">
         <description>Test that the project is valid</description>
         <property file="tests.properties"/>
 
