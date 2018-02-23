@@ -10,11 +10,18 @@ pipeline {
         IMAGE_VERSION = "${env.BUILD_ID}"
         IMAGE_PREFIX = "softwareag"
     }
-    stages {
 
+    stages {
+        def customImage;
         stage('Tests') {
             steps {
-                    sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
+                script {
+                    customImage = docker.build("${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_VERSION}")
+
+                    customImage.inside(){
+                        sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
+                    }
+                }
             }
         }
 
@@ -23,7 +30,6 @@ pipeline {
                 echo 'Saving Docker image'
                 script {
                     docker.withRegistry('https://${REGISTRY}') {
-                        def customImage = docker.build("${IMAGE_PREFIX}/${IMAGE_NAME}:${IMAGE_VERSION}")
                         customImage.push()
                         customImage.push("latest")
                     }
