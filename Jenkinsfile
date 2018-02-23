@@ -11,11 +11,10 @@ pipeline {
         IMAGE_PREFIX = "softwareag"
     }
     stages {
-        stages {
-            stage('Tests') {
-                steps {
-                    sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTest"
-                }
+
+        stage('Tests') {
+            steps {
+                    sh "ant -DPROJECT_NAME=${PROJECT_NAME} unitTests"
             }
         }
 
